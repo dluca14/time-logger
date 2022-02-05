@@ -12,10 +12,6 @@ class Worker(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
-# class WorkerSchema(ma.Schema):
-#     class Meta:
-#         model = Worker
-#         fields = ("lname", "fname", "timestamp")
 class WorkerSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Worker
@@ -37,10 +33,6 @@ class Shift(db.Model):
     worker = db.relationship("Worker", backref=db.backref('shifts', lazy=True))
 
 
-# class ShiftSchema(ma.Schema):
-#     class Meta:
-#         model = Shift
-#         fields = ("start_date", "end_date")
 class ShiftSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Shift
