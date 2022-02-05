@@ -1,9 +1,14 @@
-from flask import abort, jsonify, request
+from flask import abort, jsonify, request, render_template
 from marshmallow import ValidationError
 
 from time_logger import db, app
 
 from time_logger.models import Shift, ShiftSchema, Worker, WorkerSchema
+
+
+@app.get("/")
+def home():
+    return render_template('index.html')
 
 
 @app.get("/workers/<int:worker_id>/shifts")
@@ -43,10 +48,10 @@ def add_shift(worker_id):
             return err.messages, 422
 
         worker = Worker.query.get(worker_id)
-        existing_shift = Shift.query.with_parent(worker)\
-                              .filter(Shift.start_date == data['start_date'])\
-                              .filter(Shift.end_date == data['end_date'])\
-                              .one_or_none()
+        existing_shift = Shift.query.with_parent(worker) \
+            .filter(Shift.start_date == data['start_date']) \
+            .filter(Shift.end_date == data['end_date']) \
+            .one_or_none()
 
         if existing_shift is None:
             new_shift = Shift(start_date=data['start_date'], end_date=data['end_date'], worker_id=worker_id)
