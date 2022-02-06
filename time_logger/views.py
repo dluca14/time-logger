@@ -1,3 +1,5 @@
+import datetime
+
 from flask import abort, jsonify, request, render_template
 from marshmallow import ValidationError
 
@@ -36,6 +38,19 @@ def get_shift(worker_id, shift_id):
         abort(404, 'Shift not found for Id: {shift_id}'.format(shift_id=shift_id))
 
 
+def shift_dosent_exist_for_that_day(worker_id, data):
+    result = False
+    worker = Worker.query.get(worker_id)
+    existing_shift = Shift.query.with_parent(worker) \
+        .filter(Shift.created.strftime('%Y-%m-%d') == data['created'][:12]) \
+        .one_or_none()
+
+    if existing_shift:
+        result = True
+
+    return result
+
+
 @app.post("/workers/<int:worker_id>/shifts")
 def add_shift(worker_id):
     if request.is_json:
@@ -47,23 +62,15 @@ def add_shift(worker_id):
         except ValidationError as err:
             return err.messages, 422
 
-        worker = Worker.query.get(worker_id)
-        existing_shift = Shift.query.with_parent(worker) \
-            .filter(Shift.start_date == data['start_date']) \
-            .filter(Shift.end_date == data['end_date']) \
-            .one_or_none()
-
-        if existing_shift is None:
-            new_shift = Shift(start_date=data['start_date'], end_date=data['end_date'], worker_id=worker_id)
+        if shift_dosent_exist_for_that_day:
+            new_shift = Shift(created=data['created'], worker_id=worker_id)
             db.session.add(new_shift)
             db.session.commit()
             return data, 201
         else:
             abort(
                 409,
-                "Shift {start_date} {end_date} exists already".format(
-                    start_date=json['start_date'], end_date=json['end_date']
-                ),
+                "Shift for day {date} exists already".format(date=data['created']),
             )
 
     return {"error": "Request must be JSON"}, 415
