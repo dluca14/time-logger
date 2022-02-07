@@ -25,26 +25,26 @@ class WorkerSchema(ma.Schema):
     timestamp = fields.DateTime(allow_none=True)
 
 
-shifts_per_day = {
-    '1': {
-        'start_hour': 8,
-        'end_hour': 16
-    },
-    '2': {
-        'start_hour': 16,
-        'end_hour': 0
-    },
-    '3': {
-        'start_hour': 0,
-        'end_hour': 8
-    }
-}
+# shifts_per_day = {
+#     '1': {
+#         'start_hour': 8,
+#         'end_hour': 16
+#     },
+#     '2': {
+#         'start_hour': 16,
+#         'end_hour': 0
+#     },
+#     '3': {
+#         'start_hour': 0,
+#         'end_hour': 8
+#     }
+# }
 
 class Shift(db.Model):
     __tablename__ = 'shift'
 
     id = db.Column(db.Integer, primary_key=True)
-    shift_type = db.Column(db.Integer)
+    shift_number = db.Column(db.Integer)
     created = db.Column(db.DateTime, default=datetime.utcnow)
 
     worker_id = db.Column(db.Integer, db.ForeignKey('worker.id'), nullable=False)

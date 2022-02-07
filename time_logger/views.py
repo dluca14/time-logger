@@ -38,7 +38,7 @@ def get_shift(worker_id, shift_id):
         abort(404, 'Shift not found for Id: {shift_id}'.format(shift_id=shift_id))
 
 
-def shift_dosent_exist_for_that_day(worker_id, data):
+def shift_dosent_exists_for_that_day(worker_id, data):
     result = False
     worker = Worker.query.get(worker_id)
     existing_shift = Shift.query.with_parent(worker) \
@@ -62,7 +62,7 @@ def add_shift(worker_id):
         except ValidationError as err:
             return err.messages, 422
 
-        if shift_dosent_exist_for_that_day:
+        if shift_dosent_exists_for_that_day:
             new_shift = Shift(created=data['created'], worker_id=worker_id)
             db.session.add(new_shift)
             db.session.commit()
